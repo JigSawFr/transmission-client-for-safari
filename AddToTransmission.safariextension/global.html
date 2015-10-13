@@ -58,6 +58,7 @@
 		};
 
 		var session_id = false;
+
 		function torrent(info) {
 			this.info = info;
 			this.add = function() {
@@ -144,6 +145,239 @@
 				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("att-progress", {'info':this.info, 'message':text,'close':close});
 			}
 		}
+
+		var ds = {
+			_listeners	:	{},
+			tasks		:	[],
+			timer		:	null,
+			/* !Selection functions */
+			getFinishedTasks : function() {
+								var finished = [];
+								for(var i=0; i<this.tasks.length; i++) {
+									if(this.tasks[i].status == 0 && this.tasks[i].percentDone == 1)
+										finished.push(this.tasks[i]);
+								}
+								return finished;
+							},
+
+			/* !Event functions */
+			addListener	:	function(type, listener) {
+								if (typeof this._listeners[type] == "undefined") {
+									this._listeners[type] = [];
+								}
+
+								this._listeners[type].push(listener);
+							},
+
+			fire		:	function(event) {
+								if (typeof event == "string") {
+									event = { type: event };
+								}
+								if (!event.target) {
+									event.target = this;
+								}
+
+								if (!event.type) {
+									throw new Error("Event object missing 'type' property.");
+								}
+
+								if (this._listeners[event.type] instanceof Array) {
+									var listeners = this._listeners[event.type];
+									for (var i=0, len=listeners.length; i < len; i++){
+										listeners[i].call(this, event);
+									}
+								}
+							},
+
+			removeListener:	function(type, listener) {
+								if (this._listeners[type] instanceof Array) {
+									var listeners = this._listeners[type];
+									for (var i=0, len=listeners.length; i < len; i++) {
+										if (listeners[i] === listener){
+											listeners.splice(i, 1);
+											break;
+										}
+									}
+								}
+							},
+
+			sendRequest : function(params, callback) {
+					var request = new XMLHttpRequest();
+
+					if (safari.extension.settings.getItem("username") != null) {
+						request.open("POST", safari.extension.settings.url, true, safari.extension.settings.username, safari.extension.settings.password);
+					} else {
+						request.open("POST", safari.extension.settings.url, true);
+					}
+
+					if (session_id) {
+						request.setRequestHeader("X-Transmission-Session-Id", session_id);
+					}
+
+					request.onreadystatechange = function() {
+						if (request.readyState == 4) {
+							var response = request.responseText;
+/* 							console.log(response); */
+							ds.tasks = [];
+							try {
+								if (response.length > 0) {
+									if (response.search(/invalid session-id/i) != -1) {
+										var matches = response.match(/<code>X-Transmission-Session-Id: (.*)<\/code>/);
+											session_id = matches[1];
+											ds.loadTasks(params);
+										} else if (response.search(/unauthorized/i) != -1) {
+													showText("Unauthorized Request", "");
+										} else {
+											if(callback) {
+												callback(response);
+											}
+										}
+									}
+								} catch (e) {
+											showText("Unknown error", "");
+								}
+							}
+					};
+
+					request.send(params);
+
+			},
+
+			loadTasks	:	function() {
+					var thefields = ["id","name","eta","status","sizeWhenDone","percentDone","rateDownload","rateUpload","isFinished"];
+					var sdata = JSON.stringify({method:"torrent-get", arguments:{fields:thefields}});
+					this.sendRequest(sdata, function(response){
+						var compareItem = function(a, b) {
+							if (a.id > b.id)
+								return 1;
+							if (a.id < b.id)
+								return -1;
+							return 0;
+							}
+/* 										var response = response.substring(0, response.length-1); */
+							var sresponse = JSON.parse(response);
+/* 								console.log(data); */
+							// sort items
+							ds.tasks =  sresponse.arguments.torrents.sort(compareItem);
+/* 							setBadge(ds.tasks.length); */
+							ds.fire("taskListUpdated");
+					});
+			},
+
+			stopTask	:	function(taskId) {
+					var ds = this;
+					var sdata = JSON.stringify({method:"torrent-stop", arguments:{ids:taskId}});
+					this.sendRequest(sdata, function(response){
+						ds.loadTasks();
+					});
+			},
+
+			startTask	:	function(taskId) {
+					var ds = this;
+					var sdata = JSON.stringify({method:"torrent-start", arguments:{ids:taskId}});
+					this.sendRequest(sdata, function(response){
+						ds.loadTasks();
+					});
+			},
+
+			removeTask	:	function(taskId) {
+					var ds = this;
+					var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskId}});
+					this.sendRequest(sdata, function(response){
+						ds.loadTasks();
+					});
+			},
+
+			clearQueue	:	function(taskIds, callback) {
+/* 					console.log('ds.clearQueue called'); */
+/* 					console.log(taskIds); */
+					var ds = this;
+					var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskIds}});
+					this.sendRequest(sdata, function(response){
+					console.log(response);
+						var sresponse = JSON.parse(response);
+						if (sresponse.result == "success")
+							callback(true);
+						else
+							callback(false);
+						ds.loadTasks();
+					});
+			},
+
+			addTaskURL	:	function(taskURL) {
+					var ds = this;
+					var sdata = JSON.stringify({method:"torrent-add", arguments:{filename:taskURL}});
+					this.sendRequest(sdata, function(response){
+						showText("Start Downloading", taskURL);
+						ds.loadTasks();
+					});
+			},
+
+			addTorrentFile	: function(torrentFile) {
+					var ds = this;
+					showText("Downloading Torrent", torrentFile);
+					try {
+						var request = new XMLHttpRequest();
+						request.open("GET", that.info.href, true);
+						request.overrideMimeType('text/plain; charset=x-user-defined');
+						request.onreadystatechange = function() {
+							if (request.readyState == 4) {
+								// Base64 encode the metadata
+								var smetainfo = Base64.encodeBinary(request.responseText);
+								var sdata = JSON.stringify({method:"torrent-add", arguments:{metainfo:smetainfo}});
+								ds.sendRequest(sdata, function(response){
+									var sresponse = JSON.parse(response);
+									if (sresponse.result == "duplicate torrent")
+										showText("Torrent already exists", torrentFile);
+									else if (sresponse.result == "success")
+										showText("Start Downloading", torrentFile);
+									this.loadTasks();
+								});
+							}
+						}
+						request.send(null);
+					} catch (e) {
+						that.showText("Failed to fetch the torrent", true);
+					}
+			},
+
+			addTask	: function(info) {
+					var ds = this;
+					if (info.magnet) {
+						// Send the magnet link
+						ds.addTaskURL(info.href);
+					} else if(info.href) {
+						// Try to download the torrent file
+						ds.addTorrentFile(info.href);
+					}
+			},
+
+					/* !Other functions */
+			startBackgroundUpdate : function() {
+
+						if(this.timer) {
+
+
+							clearInterval(this.timer);
+						}
+
+						this.loadTasks();
+						var ds = this;
+						this.timer = setInterval(function(){ds.loadTasks();}, 10000);
+
+			},
+
+			startForegroundUpdate : function() {
+						if(this.timer) {
+							clearInterval(this.timer);
+						}
+						this.loadTasks();
+						var ds = this;
+						this.timer = setInterval(function(){ds.loadTasks();}, 3000);
+			}
+
+		}
+
 
 		var userInfo = false;
 		function handleContextMenu(event) {
