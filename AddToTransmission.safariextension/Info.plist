@@ -9,7 +9,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Transmission Client</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.xiaolife.safari.att</string>
+	<string>us.reitermark.transmission-client</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
@@ -87,6 +87,6 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>http://xiaolife.com/TransmissionRemote/TransmissionRemote.plist</string>
+	<string>https://github.com/reitermarkus/Add-to-Transmission/raw/master/Transmission-Client.plist</string>
 </dict>
 </plist>
