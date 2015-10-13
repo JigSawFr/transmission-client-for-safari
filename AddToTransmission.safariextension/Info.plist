@@ -87,6 +87,6 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>https://github.com/reitermarkus/Add-to-Transmission/raw/master/Transmission-Client.plist</string>
+	<string>https://github.com/reitermarkus/transmission-client-for-safari/raw/master/Update.plist</string>
 </dict>
 </plist>
