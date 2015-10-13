@@ -1,0 +1,214 @@
+body {
+	font-family: 'Lucida Grande';
+	font-size: 11px;
+	color: #707070;
+	overflow: hidden;
+	min-width: 300px;
+	padding-bottom: 15px;
+}
+
+h1 {
+	color: #707070;
+	font-size: 13px;
+	font-weight: normal;
+	text-align: center;
+	cursor: default;
+	-webkit-user-select: none;
+}
+
+button,input[type=submit] {
+	cursor: pointer;
+}
+
+#addTask {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+#clearQueue {
+	background: -webkit-linear-gradient(top, #ffffff 0%,#f3f3f3 100%);
+	border: 1px solid #bebebe;
+	border-radius: 3px;
+	color: #707070;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	-webkit-transition: 0.3s;
+	transition: 0.3s;
+}
+
+#clearQueue:active {
+	background: -webkit-linear-gradient(top, #d2d2d2 0%,#f4f4f4 25%,#f4f4f4 100%);
+	box-shadow:inset 0 0 2px #e5e5e5;
+}
+
+#addUrlForm {
+	height: 0px;
+	overflow: hidden;
+	clear: both;
+	-webkit-transition: 0.3s;
+}
+
+#addUrlForm.visible {
+	height: 22px;
+}
+
+#addUrlForm input[name=url] {
+	width: 246px;
+}
+
+#addUrlForm input[name=submit] {
+	float: right;
+}
+
+#downloadQueue {
+	max-height: 600px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+
+.task {
+	background-image: url(../img/separationLine.png);
+	background-repeat: no-repeat;
+	padding: 10px 0 5px;
+	white-space: nowrap;
+	overflow: hidden;
+	width: 300px;
+	position: relative;
+	-webkit-transition: opacity 0.5s;
+}
+
+.task.hidden{
+	opacity: 0;
+}
+
+.task.scrollbar-space {
+	width: 320px!important;
+}
+
+.task.scrollbar-space .task-buttons {
+	right: 20px;
+}
+
+.task:first-child {
+	background-image: none;
+}
+
+span.filename {
+	display: block;
+	color: black;
+	overflow: hidden;
+	text-overflow:ellipsis;
+	white-space: nowrap;
+	width: 250px;
+	-webkit-user-select: none;
+	cursor: default;
+}
+
+.progressBar {
+	width: 250px;
+	height: 10px;
+	margin-right: 5px;
+	margin-bottom: 3px;
+	margin-top: 5px;
+	border: 1px solid #969696;
+
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+	background-image: url(../img/progressBarBackground.png);
+	background-repeat: repeat-x;
+	float: left;
+	
+	-webkit-transition: 0.3s;
+}
+
+/*
+.task.completed .progressBar {
+	height: 0px;
+	margin: 0px;
+	border: 0px;
+}
+*/
+
+.progressBar .progress {
+	height: 100%;
+	width: 0px;
+	background-image: url(../img/progressBackground.png);
+	background-repeat: repeat-x;
+	-webkit-transition: width 1s;
+	transition: width 1s;
+	
+	-webkit-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+}
+
+
+.task.completed .progressBar .progress {
+	width: 100%!important;
+}
+
+.task-buttons {
+	position: absolute;
+	right: 10px;
+	top: 48%;
+	margin-top: -2px;
+	cursor: default;
+	-webkit-user-select: none;
+}
+
+
+.progressText {
+	font-size: 9px;
+	display: block;
+	float: left;
+	clear: both;
+}
+
+.progressText.finished {
+	margin-top: 5px;
+}
+
+.btn {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+	opacity: 0.5;
+
+	-webkit-transition-property: opacity;
+	transition-property: opacity;
+
+	-webkit-transition-duration: 0.2s;
+	transition-duration: 0.2s;
+}
+
+.btn:hover {
+	opacity: 1;
+}
+
+.removeTask {
+	background-image: url(../img/Remove.png);
+}
+
+.stopTask {
+	background-image: url(../img/Pause.png);
+}
+
+.startTask {
+	background-image: url(../img/Resume.png);
+}
+
+#statusText {
+	text-align: center;
+	min-height: 1em;
+	margin-top: 10px;
+	margin-bottom: -10px;
+	padding: 0 15px;
+	-webkit-transition: opacity 0.5s;
+}
+
+#statusText.hidden {
+	opacity: 0;
+}

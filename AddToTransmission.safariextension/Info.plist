@@ -3,23 +3,57 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>Andreas Johansson</string>
+	<string>Xiao Xiao</string>
 	<key>Builder Version</key>
 	<string>8536.26.17</string>
 	<key>CFBundleDisplayName</key>
-	<string>Add to Transmission</string>
+	<string>Transmission Remote for Safari</string>
 	<key>CFBundleIdentifier</key>
-	<string>se.zanmato.addtotransmission</string>
+	<string>com.xiaolife.safari.att</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3</string>
+	<string>1.6</string>
 	<key>CFBundleVersion</key>
-	<string>1.3</string>
+	<string>7</string>
 	<key>Chrome</key>
 	<dict>
+		<key>Database Quota</key>
+		<real>1048576</real>
 		<key>Global Page</key>
 		<string>global.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>popover.html</string>
+				<key>Height</key>
+				<real>200</real>
+				<key>Identifier</key>
+				<string>statusPopover</string>
+				<key>Width</key>
+				<real>315</real>
+			</dict>
+		</array>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string></string>
+				<key>Identifier</key>
+				<string>safariTRToolbarButton</string>
+				<key>Image</key>
+				<string>toolbar.png</string>
+				<key>Label</key>
+				<string>Transmission Remote</string>
+				<key>Palette Label</key>
+				<string>Safari Transmission Remote</string>
+				<key>Popover</key>
+				<string>statusPopover</string>
+				<key>Tool Tip</key>
+				<string>View download task status in Transmission</string>
+			</dict>
+		</array>
 	</dict>
 	<key>Content</key>
 	<dict>
@@ -33,10 +67,11 @@
 		<key>Stylesheets</key>
 		<array>
 			<string>se.zanmato.addtotransmission.css</string>
+			<string>popover.css</string>
 		</array>
 	</dict>
 	<key>Description</key>
-	<string>Easily add torrents to Transmission</string>
+	<string>Add torrent &amp; magnet to remote Transmission, and manage them within Safari.</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -50,8 +85,8 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>https://github.com/zanmato/Add-to-Transmission/raw/master/Update.plist</string>
+	<string>http://xiaolife.com/TransmissionRemote/TransmissionRemote.plist</string>
 	<key>Website</key>
-	<string>http://www.zanmato.se</string>
+	<string>http://xiaolife.com/TransmissionRemote/</string>
 </dict>
 </plist>
