@@ -1,8 +1,0 @@
-content	addtotransmission	content/
-overlay	chrome://browser/content/browser.xul	chrome://addtotransmission/content/overlay.xul
-
-locale	addtotransmission	en-US	locale/en-US/
-locale  addtotransmission sv-SE locale/sv-SE/
-
-component {e2ad1660-1b52-11e4-8c21-0800200c9a66} components/magnetService.js
-contract @mozilla.org/network/protocol;1?name=magnet {e2ad1660-1b52-11e4-8c21-0800200c9a66}
