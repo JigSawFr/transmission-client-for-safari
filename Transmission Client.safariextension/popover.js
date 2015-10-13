@@ -205,9 +205,9 @@ var GIGABYTE = 1073741824;
 
 function translateSpeed(bytes) {
   if (bytes <= 0) {
-    return '(0 B/sec)';
+    return '(0 B/s)';
   } else if (bytes < KILOBYTE) {
-    return '(' + Math.round(bytes) + ' B/sec)'
+    return '(' + Math.round(bytes) + ' B/s)'
   } else if (bytes < MEGABYTE) {
     return '(' + Math.round(bytes/KILOBYTE) + ' KB/s)';
   } else {

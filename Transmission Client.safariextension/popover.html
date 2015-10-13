@@ -1,16 +1,14 @@
-<!DOCTYPE HTML>
+<!doctype html>
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="css/popover.css" />
-	</head>
-	<body>
+    <body>
 		<h1 id="header">Transmission Downloads</h1>
 		<button data-bind="visible: completedTasks().length > 0, click: clearQueue" id="clearQueue">Clear</button>
-
 		<div id="downloadQueue" data-bind="foreach: tasks">
 			<div class="task">
-				<span data-bind="attr: { title: filenameDecoded },
-								text: filenameDecoded" class="filename"></span>
+
+				<span data-bind="attr: { title: filenameDecoded }, text: filenameDecoded" class="filename"></span>
 
 				<div data-bind="visible: !isCompleted()" class="progress-bar">
           <div class="progress-outer-wrapper">
@@ -20,19 +18,17 @@
 				</div>
 
 				<div class="task-buttons">
-
 					<span data-bind="visible: isPaused(), click: $root.startTask" class="btn startTask"></span>
 					<span data-bind="visible: !isPaused(), click: $root.stopTask" class="btn stopTask"></span>
-
 					<span data-bind="click: $root.removeTask" class="btn removeTask"></span>
 				</div>
 
 				<span data-bind="visible: isCompleted()" class="progressText finished">
-					<span data-bind="text: totalSize"></span> - <span data-bind="text: statusText"></span>
+					<span data-bind="text: totalSize"></span> &ndash; <span data-bind="text: statusText"></span>
 				</span>
 
 				<span data-bind="visible: !isCompleted()" class="progressText">
-					<span data-bind="text: totalSize"></span> <span data-bind="visible: !isPaused(), text: currentRateText"></span> - <span data-bind="text: statusText"></span>
+					<span data-bind="text: totalSize"></span> <span data-bind="visible: !isPaused(), text: currentRateText"></span> &ndash; <span data-bind="text: statusText"></span>
 				</span>
 
 			</div>
@@ -40,12 +36,9 @@
 
 		<div id="statusText" data-bind="visible: (tasks.length == 0), text: statusText"></div>
 
-
 		<script src="variables.js"></script>
 		<script src="jquery-1.7.2.min.js"></script>
 		<script src="knockout.js"></script>
 		<script src="knockout.mapping.js"></script>
 		<script src="browser-functions.js"></script>
 		<script src="popover.js"></script>
-	</body>
-</html>

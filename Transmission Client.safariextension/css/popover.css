@@ -72,12 +72,16 @@ span.filename,
 	height: 6px;
 }
 
+.progress-bar,
+.progressText.finished {
+	margin-top: 5px;
+}
+
 .progress-bar {
 	border-radius: 3px;
   background-color: rgba(0,0,0,.1);
 
 	float: left;
-	margin-top: 5px;
 	margin-bottom: 3px;
 
 	-webkit-transition: 0.3s;
@@ -146,10 +150,6 @@ span.filename,
 	display: block;
 	float: left;
 	clear: both;
-}
-
-.progressText.finished {
-	margin-top: 5px;
 }
 
 .btn {
