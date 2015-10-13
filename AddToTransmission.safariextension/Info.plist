@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>Xiao Xiao</string>
+	<string>Markus Reiter</string>
 	<key>Builder Version</key>
-	<string>8536.26.17</string>
+	<string>11601.2.7.2</string>
 	<key>CFBundleDisplayName</key>
-	<string>Transmission Remote for Safari</string>
+	<string>Transmission Client for Safari</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.xiaolife.safari.att</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -32,7 +32,7 @@
 				<key>Identifier</key>
 				<string>statusPopover</string>
 				<key>Width</key>
-				<real>315</real>
+				<integer>380</integer>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
@@ -71,7 +71,7 @@
 		</array>
 	</dict>
 	<key>Description</key>
-	<string>Add torrent &amp; magnet to remote Transmission, and manage them within Safari.</string>
+	<string>Add torrents and magnet links to Transmission, and manage them, via Safari.</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -86,7 +86,5 @@
 	</dict>
 	<key>Update Manifest URL</key>
 	<string>http://xiaolife.com/TransmissionRemote/TransmissionRemote.plist</string>
-	<key>Website</key>
-	<string>http://xiaolife.com/TransmissionRemote/</string>
 </dict>
 </plist>

@@ -6,16 +6,19 @@
 	<body>
 		<h1 id="header">Transmission Downloads</h1>
 		<button data-bind="visible: completedTasks().length > 0, click: clearQueue" id="clearQueue">Clear</button>
-		
+
 		<div id="downloadQueue" data-bind="foreach: tasks">
 			<div class="task">
 				<span data-bind="attr: { title: filenameDecoded },
 								text: filenameDecoded" class="filename"></span>
-				
-				<div data-bind="visible: !isCompleted()" class="progressBar">
-					<div class="progress" data-bind="visible: !isCompleted(), style: {width: progress}"></div>
+
+				<div data-bind="visible: !isCompleted()" class="progress-bar">
+          <div class="progress-outer-wrapper">
+					  <div class="progress outer" data-bind="visible: !isCompleted(), style: {width: progress}"></div>
+          </div>
+          <div class="border"></div>
 				</div>
-				
+
 				<div class="task-buttons">
 
 					<span data-bind="visible: isPaused(), click: $root.startTask" class="btn startTask"></span>
@@ -23,21 +26,21 @@
 
 					<span data-bind="click: $root.removeTask" class="btn removeTask"></span>
 				</div>
-				
+
 				<span data-bind="visible: isCompleted()" class="progressText finished">
 					<span data-bind="text: totalSize"></span> - <span data-bind="text: statusText"></span>
 				</span>
-				
+
 				<span data-bind="visible: !isCompleted()" class="progressText">
 					<span data-bind="text: totalSize"></span> <span data-bind="visible: !isPaused(), text: currentRateText"></span> - <span data-bind="text: statusText"></span>
 				</span>
-				
+
 			</div>
 		</div>
-		
+
 		<div id="statusText" data-bind="visible: (tasks.length == 0), text: statusText"></div>
-		
-		
+
+
 		<script src="variables.js"></script>
 		<script src="jquery-1.7.2.min.js"></script>
 		<script src="knockout.js"></script>

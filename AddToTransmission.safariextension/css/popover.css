@@ -1,65 +1,26 @@
 body {
-	font-family: 'Lucida Grande';
-	font-size: 11px;
+	font-family: -apple-system, 'Helvetica Neue', 'Lucida Grande';
+	font-size: 13px;
 	color: #707070;
 	overflow: hidden;
-	min-width: 300px;
-	padding-bottom: 15px;
+	cursor: default;
+  -webkit-user-select: none;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 h1 {
-	color: #707070;
-	font-size: 13px;
+	font-size: inherit;
 	font-weight: normal;
 	text-align: center;
-	cursor: default;
-	-webkit-user-select: none;
-}
-
-button,input[type=submit] {
-	cursor: pointer;
-}
-
-#addTask {
-	position: absolute;
-	top: 5px;
-	left: 5px;
+  line-height: 14px;
 }
 
 #clearQueue {
-	background: -webkit-linear-gradient(top, #ffffff 0%,#f3f3f3 100%);
-	border: 1px solid #bebebe;
-	border-radius: 3px;
-	color: #707070;
 	position: absolute;
-	top: 5px;
-	right: 5px;
-	-webkit-transition: 0.3s;
-	transition: 0.3s;
-}
-
-#clearQueue:active {
-	background: -webkit-linear-gradient(top, #d2d2d2 0%,#f4f4f4 25%,#f4f4f4 100%);
-	box-shadow:inset 0 0 2px #e5e5e5;
-}
-
-#addUrlForm {
-	height: 0px;
-	overflow: hidden;
-	clear: both;
-	-webkit-transition: 0.3s;
-}
-
-#addUrlForm.visible {
-	height: 22px;
-}
-
-#addUrlForm input[name=url] {
-	width: 246px;
-}
-
-#addUrlForm input[name=submit] {
-	float: right;
+  top: 6px;
+  right: 6px;
+  font-size: inherit;
 }
 
 #downloadQueue {
@@ -70,30 +31,19 @@ button,input[type=submit] {
 }
 
 .task {
-	background-image: url(../img/separationLine.png);
-	background-repeat: no-repeat;
-	padding: 10px 0 5px;
+	padding: 10px 8px;
 	white-space: nowrap;
 	overflow: hidden;
-	width: 300px;
 	position: relative;
 	-webkit-transition: opacity 0.5s;
 }
 
+.task:not(:first-child) {
+  border-top: 1px solid #c3bfb3;
+}
+
 .task.hidden{
-	opacity: 0;
-}
-
-.task.scrollbar-space {
-	width: 320px!important;
-}
-
-.task.scrollbar-space .task-buttons {
-	right: 20px;
-}
-
-.task:first-child {
-	background-image: none;
+	display: none;
 }
 
 span.filename {
@@ -102,60 +52,88 @@ span.filename {
 	overflow: hidden;
 	text-overflow:ellipsis;
 	white-space: nowrap;
-	width: 250px;
-	-webkit-user-select: none;
-	cursor: default;
+	-webkit-user-select: initial;
 }
 
-.progressBar {
-	width: 250px;
-	height: 10px;
-	margin-right: 5px;
-	margin-bottom: 3px;
-	margin-top: 5px;
-	border: 1px solid #969696;
+span.filename,
+.progress-bar,
+.progress-outer-wrapper,
+.progress-bar .border {
+  width: 300px;
+}
 
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
-	background-image: url(../img/progressBarBackground.png);
-	background-repeat: repeat-x;
+.progress-bar,
+.progress-outer-wrapper,
+.progress-bar .border {
+	height: 6px;
+}
+
+.progress-bar {
+	border-radius: 3px;
+  background-color: rgba(0,0,0,.1);
+
 	float: left;
-	
+	margin-top: 5px;
+	margin-bottom: 3px;
+
 	-webkit-transition: 0.3s;
+  position: relative;
+  overflow: hidden;
 }
 
-/*
-.task.completed .progressBar {
-	height: 0px;
-	margin: 0px;
-	border: 0px;
+.progress-inner-wrapper {
+  width: 298px;
+  height: 4px;
 }
-*/
 
-.progressBar .progress {
+.progress-inner-wrapper {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+}
+
+.progress-inner-wrapper .progress {
+  background-color: #479bf9;
+}
+
+.progress-outer-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.progress-outer-wrapper .progress{
+  background-color: #479bf9;
+}
+
+.progress-bar .progress {
 	height: 100%;
 	width: 0px;
-	background-image: url(../img/progressBackground.png);
-	background-repeat: repeat-x;
 	-webkit-transition: width 1s;
 	transition: width 1s;
-	
+
 	-webkit-transition-timing-function: ease-in-out;
 	transition-timing-function: ease-in-out;
+
+}
+
+.progress-bar .border {
+  border: 1px solid rgba(0,0,0,.125);
+  position: absolute;
+  border-radius: 3px;
+  box-sizing: border-box;
 }
 
 
-.task.completed .progressBar .progress {
+.task.completed .progress-bar .progress {
 	width: 100%!important;
 }
 
 .task-buttons {
 	position: absolute;
-	right: 10px;
-	top: 48%;
-	margin-top: -2px;
-	cursor: default;
-	-webkit-user-select: none;
+  right: 6px;
+	top: 50%;
+	margin-top: -4px;
 }
 
 
@@ -174,18 +152,13 @@ span.filename {
 	display: inline-block;
 	width: 14px;
 	height: 14px;
-	cursor: pointer;
-	opacity: 0.5;
-
-	-webkit-transition-property: opacity;
-	transition-property: opacity;
-
-	-webkit-transition-duration: 0.2s;
-	transition-duration: 0.2s;
+  background-color: #909090;
+  background-size: 100%;
+  border-radius: 7px;
 }
 
-.btn:hover {
-	opacity: 1;
+.btn:active {
+	background-color: #7b7b7b;
 }
 
 .removeTask {
@@ -197,7 +170,15 @@ span.filename {
 }
 
 .startTask {
+  background-color: #fc8b2d;
 	background-image: url(../img/Resume.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+}
+
+.startTask:active {
+  background-color: #c96518;
 }
 
 #statusText {
@@ -209,6 +190,6 @@ span.filename {
 	-webkit-transition: opacity 0.5s;
 }
 
-#statusText.hidden {
-	opacity: 0;
+#statusText {
+	display: none;
 }

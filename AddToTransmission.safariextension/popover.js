@@ -5,7 +5,7 @@ var safariPopover;
 var taskModel = function(data) {
 	var self = this;
 	ko.mapping.fromJS(data, {}, self);
-	
+
 	self.filenameDecoded = ko.computed(function() {
 		return decodeURIComponent(self.name());
 	}, self);
@@ -16,36 +16,36 @@ var taskModel = function(data) {
 		else
 			return translateSpeed(self.rateDownload());
 	}, self);
-	
+
 	self.statusText = ko.computed(function() {
 		if(!self.isFinished())
 			return translateStatus(self.status());
 		else
 			return 'Finished';
 	}, self);
-	
+
 	self.isPaused = ko.computed(function() {
 		return self.status() == 0;
 	}, self);
-	
+
 	self.isCompleted = ko.computed(function() {
 		return self.isFinished() || (self.percentDone() == 1 && self.status() == 0);
 	}, self);
-	
+
 	self.progress = ko.computed(function() {
 		return translatePercent(self.percentDone());
 	}, self);
-	
+
 	self.totalSize = ko.computed(function() {
 		return translateSize(self.sizeWhenDone());
 	}, self);
-	
+
 	self.currentSize = ko.computed(function() {
 		return self.percentDone()*self.sizeWhenDone();
 	}, self);
-	
+
 	self.removed = ko.observable(false);
-	
+
 	self.taskVisible = ko.computed(function() {
 		if(self.status() == 0|| self.removed() == true)
 			return false;
@@ -65,14 +65,14 @@ var mapping = {
 function PopoverViewModel() {
 	var self = this;
 	self.tasks = ko.observableArray();
-	
+
 	self.tasksLength = ko.computed(function() {
 		var tasks = self.tasks();
 		return tasks.length;
 	});
-		
+
 	self.statusText = ko.observable();
-	
+
 	self.completedTasks = ko.computed(function() {
 		var tasks = self.tasks();
 		var completedTasks = new Array();
@@ -83,20 +83,20 @@ function PopoverViewModel() {
 		}
 		return completedTasks;
 	}, self);
-	
+
 	self.removeTask = function(task) {
 		backgroundPage.removeTask(task.id());
 		task.removed(true);
 	};
-	
+
 	self.startTask = function(task) {
 		backgroundPage.startTask(task.id());
 	};
-	
+
 	self.stopTask = function(task) {
 		backgroundPage.stopTask(task.id());
 	};
-	
+
 	self.clearQueue = function() {
 		var completedTasks = self.completedTasks();
 		var completedTaskIds = new Array();
@@ -115,7 +115,7 @@ function PopoverViewModel() {
 		for(var i = 0; i < completedTasks.length; i++)
 			completedTasks[i].removed(true);
 	};
-	
+
 	self.hideTaskElement = function(elem) {
 		if (elem.nodeType === 1) {
 			$(elem).addClass('hidden');
@@ -156,11 +156,11 @@ $(document).ready(function() {
 /* 	setInterval('updatePopoverHeight()', 10); */
 	// !Initialize popover
 	backgroundPage = getBackgroundPage();
-	
+
 	$(window).unload(function() {
 		backgroundPage.popupClosed();
 	});
-	
+
 	// Set a timer for Safari to check the visibility of the popover since there's no event for that
 	if(isSafari) {
 		var popovers = getSafariPopoverObjects();
@@ -168,12 +168,12 @@ $(document).ready(function() {
 			if(popover.identifier == "statusPopover")
 				safariPopover = popover;
 		});
-		
+
 		// Event when popover is displayed
 		safari.application.addEventListener("popover", function(evt) {
 			if(evt.target.identifier == "statusPopover") {
 				backgroundPage.popupOpen();
-				
+
 				var safariVisibilityTimer = setInterval(function() {
 					if(safariPopover.visible == false) {
 						backgroundPage.popupClosed();
@@ -191,58 +191,55 @@ function setInfo(message) {
 	viewModel.statusText(message);
 }
 
-function translatePercent(progress)
-{
-		var prog = progress*100;
-		if(prog == 100)
-			return '100%';
-		else
-			return prog.toFixed(2) +'%';
+function translatePercent(progress) {
+  var prog = progress*100;
+  if(prog == 100)
+    return '100%';
+  else
+    return prog.toFixed(2) +'%';
 }
 
-function translateSpeed(bytes)
-{
-    var KILOBYTE = 1024;
-    var MEGABYTE = KILOBYTE * 1024;
-    
-    if (bytes == 0) {
-        return '(0 B/sec)';
-    } else if (bytes <= KILOBYTE) {
-        return '(' + Math.round(bytes) + ' B/sec)'
-    } else if (bytes <= MEGABYTE) {
-        return '(' + Math.round(bytes/KILOBYTE) + ' KB/s)';
-    } else {
-        return '(' + Math.round((bytes/MEGABYTE)*100)/100 + ' MB/s)';
-    }
+var KILOBYTE = 1024;
+var MEGABYTE = 1048576;
+var GIGABYTE = 1073741824;
+
+function translateSpeed(bytes) {
+  if (bytes <= 0) {
+    return '(0 B/sec)';
+  } else if (bytes < KILOBYTE) {
+    return '(' + Math.round(bytes) + ' B/sec)'
+  } else if (bytes < MEGABYTE) {
+    return '(' + Math.round(bytes/KILOBYTE) + ' KB/s)';
+  } else {
+    return '(' + Math.round((bytes/MEGABYTE)*100)/100 + ' MB/s)';
+  }
 }
 
-function translateSize(bytes)
-{
-    var KILOBYTE = 1024;
-    var MEGABYTE = KILOBYTE * 1024;
-    
-    if (bytes == 0) {
-        return "0";
-    } else if (bytes <= KILOBYTE) {
-        return Math.round(bytes) + ' B'
-    } else if (bytes <= MEGABYTE) {
-        return Math.round(bytes/KILOBYTE) + ' KB';
-    } else {
-        return Math.round((bytes/MEGABYTE)*100)/100 + ' MB';
-    }
+function translateSize(bytes) {
+
+  if (bytes <= 0) {
+    return "0";
+  } else if (bytes < KILOBYTE) {
+    return Math.round(bytes) + ' B'
+  } else if (bytes < MEGABYTE) {
+    return Math.round(bytes/KILOBYTE) + ' KB';
+  } else if (bytes < GIGABYTE) {
+    return Math.round((bytes/MEGABYTE)*100)/100 + ' MB';
+  }  else {
+    return Math.round((bytes/GIGABYTE)*100)/100 + ' GB';
+  }
 }
 
-function translateStatus(synostatus)
-{
+function translateStatus(synostatus) {
 	switch (synostatus) {
 		case 0:
-			return 'Stopped';
+			return 'Paused';
 		case 4:
 			return getLocalizedString('Downloading');
 		case 6:
 			return getLocalizedString('Seeding');
 		default:
-			return getLocalizedString('statusUnknown');
+			return getLocalizedString('Status Unknown');
 	}
 }
 

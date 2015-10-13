@@ -3,533 +3,477 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-	  <script src="jquery-1.7.2.min.js"></script>
-		<script src="knockout.js"></script>
-		<script src="knockout.mapping.js"></script>
-		<script src="browser-functions.js"></script>
-		<script src="variables.js"></script>
-		<script src="popover.js"></script>
+    <script src="jquery-1.7.2.min.js"></script>
+    <script src="knockout.js"></script>
+    <script src="knockout.mapping.js"></script>
+    <script src="browser-functions.js"></script>
+    <script src="variables.js"></script>
+    <script src="popover.js"></script>
     <script type="text/javascript">
-		// From http://emilsblog.lerch.org/2009/07/javascript-hacks-using-xhr-to-load.html
-		var Base64 = {
-			// private property
-			_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/l",
-			encodeBinary : function(input){
-				var output = "";
-				var bytebuffer;
-				var encodedCharIndexes = new Array(4);
-				var inx = 0;
-				var paddingBytes = 0;
+    // From http://emilsblog.lerch.org/2009/07/javascript-hacks-using-xhr-to-load.html
+    var Base64 = {
+      // private property
+      _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/l",
+      encodeBinary : function(input){
+        var output = "";
+        var bytebuffer;
+        var encodedCharIndexes = new Array(4);
+        var inx = 0;
+        var paddingBytes = 0;
 
-				while(inx < input.length){
-					// Fill byte buffer array
-					bytebuffer = new Array(3);
-					for(var jnx = 0; jnx < bytebuffer.length; jnx++)
-					if(inx < input.length)
-						bytebuffer[jnx] = input.charCodeAt(inx++) & 0xff; // throw away high-order byte, as documented at: https://developer.mozilla.org/En/Using_XMLHttpRequest#Handling_binary_data
-					else
-						bytebuffer[jnx] = 0;
+        while(inx < input.length){
+          // Fill byte buffer array
+          bytebuffer = new Array(3);
+          for(var jnx = 0; jnx < bytebuffer.length; jnx++)
+          if(inx < input.length)
+            bytebuffer[jnx] = input.charCodeAt(inx++) & 0xff; // throw away high-order byte, as documented at: https://developer.mozilla.org/En/Using_XMLHttpRequest#Handling_binary_data
+          else
+            bytebuffer[jnx] = 0;
 
-					// Get each encoded character, 6 bits at a time
-					// index 1: first 6 bits
-					encodedCharIndexes[0] = bytebuffer[0] >> 2;
-					// index 2: second 6 bits (2 least significant bits from input byte 1 + 4 most significant bits from byte 2)
-					encodedCharIndexes[1] = ((bytebuffer[0] & 0x3) << 4) | (bytebuffer[1] >> 4);
-					// index 3: third 6 bits (4 least significant bits from input byte 2 + 2 most significant bits from byte 3)
-					encodedCharIndexes[2] = ((bytebuffer[1] & 0x0f) << 2) | (bytebuffer[2] >> 6);
-					// index 3: forth 6 bits (6 least significant bits from input byte 3)
-					encodedCharIndexes[3] = bytebuffer[2] & 0x3f;
+          // Get each encoded character, 6 bits at a time
+          // index 1: first 6 bits
+          encodedCharIndexes[0] = bytebuffer[0] >> 2;
+          // index 2: second 6 bits (2 least significant bits from input byte 1 + 4 most significant bits from byte 2)
+          encodedCharIndexes[1] = ((bytebuffer[0] & 0x3) << 4) | (bytebuffer[1] >> 4);
+          // index 3: third 6 bits (4 least significant bits from input byte 2 + 2 most significant bits from byte 3)
+          encodedCharIndexes[2] = ((bytebuffer[1] & 0x0f) << 2) | (bytebuffer[2] >> 6);
+          // index 3: forth 6 bits (6 least significant bits from input byte 3)
+          encodedCharIndexes[3] = bytebuffer[2] & 0x3f;
 
-					// Determine whether padding happened, and adjust accordingly
-					paddingBytes = inx - (input.length - 1);
-					switch(paddingBytes){
-						case 2:
-							// Set last 2 characters to padding char
-							encodedCharIndexes[3] = 64;
-							encodedCharIndexes[2] = 64;
-						break;
-						case 1:
-							// Set last character to padding char
-							encodedCharIndexes[3] = 64;
-						break;
-						default:
-						break; // No padding - proceed
-					}
-					// Now we will grab each appropriate character out of our keystring
-					// based on our index array and append it to the output string
-					for(var jnx = 0; jnx < encodedCharIndexes.length; jnx++)
-						output += this._keyStr.charAt(encodedCharIndexes[jnx]);
-				}
-				return output;
-			}
-		};
+          // Determine whether padding happened, and adjust accordingly
+          paddingBytes = inx - (input.length - 1);
+          switch(paddingBytes){
+            case 2:
+              // Set last 2 characters to padding char
+              encodedCharIndexes[3] = 64;
+              encodedCharIndexes[2] = 64;
+            break;
+            case 1:
+              // Set last character to padding char
+              encodedCharIndexes[3] = 64;
+            break;
+            default:
+            break; // No padding - proceed
+          }
+          // Now we will grab each appropriate character out of our keystring
+          // based on our index array and append it to the output string
+          for(var jnx = 0; jnx < encodedCharIndexes.length; jnx++)
+            output += this._keyStr.charAt(encodedCharIndexes[jnx]);
+        }
+        return output;
+      }
+    };
 
-		var session_id = false;
+    var session_id = false;
 
-		function torrent(info) {
-			this.info = info;
-			this.add = function() {
-				that = this;
-				// Add paused? defaults to YES!
-				var addPaused = true;
-				if (safari.extension.settings.getItem("addpaused") != null) {
-					addPaused = safari.extension.settings.addpaused;
-				}
-				var downloadDir = "";
-				if (safari.extension.settings.getItem("path") != null) {
-					downloadDir = safari.extension.settings.path;
-				}
-				if (that.info.magnet) {
-					// Send the magnet link
-					that.upload(JSON.stringify({method:"torrent-add", arguments:{filename:that.info.href, paused:addPaused, "download-dir":downloadDir}}));
-				} else {
-					// Try to download the torrent file
-					that.showText("Downloading");
-					try {
-						var request = new XMLHttpRequest();
-						request.open("GET", that.info.href, true);
-						request.overrideMimeType('text/plain; charset=x-user-defined');
-						request.onreadystatechange = function() {
-							if (request.readyState == 4) {
-								// Base64 encode the metadata
-								var metainfo = Base64.encodeBinary(request.responseText);
-								that.upload(JSON.stringify({method:"torrent-add", arguments:{metainfo:metainfo, paused:addPaused, "download-dir":downloadDir}}));
-							}
-						}
+    function torrent(info) {
+      this.info = info;
+      this.add = function() {
+        that = this;
+        // Add paused? defaults to YES!
+        var addPaused = true;
+        if (safari.extension.settings.getItem("addpaused") != null) {
+          addPaused = safari.extension.settings.addpaused;
+        }
+        var downloadDir = "";
+        if (safari.extension.settings.getItem("path") != null) {
+          downloadDir = safari.extension.settings.path;
+        }
+        if (that.info.magnet) {
+          // Send the magnet link
+          that.upload(JSON.stringify({method:"torrent-add", arguments:{filename:that.info.href, paused:addPaused, "download-dir":downloadDir}}));
+        } else {
+          // Try to download the torrent file
+          that.showText("Downloading");
+          try {
+            var request = new XMLHttpRequest();
+            request.open("GET", that.info.href, true);
+            request.overrideMimeType('text/plain; charset=x-user-defined');
+            request.onreadystatechange = function() {
+              if (request.readyState == 4) {
+                // Base64 encode the metadata
+                var metainfo = Base64.encodeBinary(request.responseText);
+                that.upload(JSON.stringify({method:"torrent-add", arguments:{metainfo:metainfo, paused:addPaused, "download-dir":downloadDir}}));
+              }
+            }
 
-						request.send(null);
-					} catch (e) {
-						that.showText("Failed to fetch the torrent", true);
-					}
-				}
-			}
-			this.upload = function(data) {
-				that = this;
+            request.send(null);
+          } catch (e) {
+            that.showText("Failed to fetch the torrent", true);
+          }
+        }
+      }
+      this.upload = function(data) {
+        that = this;
 
-				that.showText("Sending");
-				var request = new XMLHttpRequest();
+        that.showText("Sending");
+        var request = new XMLHttpRequest();
 
-				if (safari.extension.settings.getItem("username") != null) {
-					request.open("POST", safari.extension.settings.url, true, safari.extension.settings.username, safari.extension.settings.password);
-				} else {
-					request.open("POST", safari.extension.settings.url, true);
-				}
+        if (safari.extension.settings.getItem("username") != null) {
+          request.open("POST", safari.extension.settings.url, true, safari.extension.settings.username, safari.extension.settings.password);
+        } else {
+          request.open("POST", safari.extension.settings.url, true);
+        }
 
-				if (session_id) {
-					request.setRequestHeader("X-Transmission-Session-Id", session_id);
-				}
+        if (session_id) {
+          request.setRequestHeader("X-Transmission-Session-Id", session_id);
+        }
 
-				request.onreadystatechange = function() {
-					if (request.readyState == 4) {
-						var response = request.responseText;
-						try {
-							if (response.length > 0) {
-								if (response.search(/invalid session-id/i) != -1) {
-									var matches = response.match(/<code>X-Transmission-Session-Id: (.*)<\/code>/);
-									session_id = matches[1];
-									that.upload(data);
-								} else if (response.search(/unauthorized/i) != -1) {
-									that.showText("Unauthorized", true);
-								} else {
-									var json_response = JSON.parse(response);
-									that.showText(json_response.result.charAt(0).toUpperCase() + json_response.result.slice(1), true);
-								}
-							} else {
-								that.showText("Empty response", true);
-							}
-						} catch (e) {
-							that.showText("Unknown error", true);
-						}
-					}
-				};
+        request.onreadystatechange = function() {
+          if (request.readyState == 4) {
+            var response = request.responseText;
+            try {
+              if (response.length > 0) {
+                if (response.search(/invalid session-id/i) != -1) {
+                  var matches = response.match(/<code>X-Transmission-Session-Id: (.*)<\/code>/);
+                  session_id = matches[1];
+                  that.upload(data);
+                } else if (response.search(/unauthorized/i) != -1) {
+                  that.showText("Unauthorized", true);
+                } else {
+                  var json_response = JSON.parse(response);
+                  that.showText(json_response.result.charAt(0).toUpperCase() + json_response.result.slice(1), true);
+                }
+              } else {
+                that.showText("Empty response", true);
+              }
+            } catch (e) {
+              that.showText("Unknown error", true);
+            }
+          }
+        };
 
-				request.send(data);
-			}
-			this.showText = function(text, close) {
-				if (!close) {
-					close = false;
-				}
-				safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("att-progress", {'info':this.info, 'message':text,'close':close});
-			}
-		}
+        request.send(data);
+      }
+      this.showText = function(text, close) {
+        if (!close) {
+          close = false;
+        }
+        safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("att-progress", {'info':this.info, 'message':text,'close':close});
+      }
+    }
 
-		var ds = {
-			_listeners	:	{},
-			tasks		:	[],
-			timer		:	null,
-			/* !Selection functions */
-			getFinishedTasks : function() {
-								var finished = [];
-								for(var i=0; i<this.tasks.length; i++) {
-									if(this.tasks[i].status == 0 && this.tasks[i].percentDone == 1)
-										finished.push(this.tasks[i]);
-								}
-								return finished;
-							},
+    var ds = {
+      _listeners  : {},
+      tasks   : [],
+      timer   : null,
+      /* !Selection functions */
+      getFinishedTasks : function() {
+                var finished = [];
+                for(var i=0; i<this.tasks.length; i++) {
+                  if(this.tasks[i].status == 0 && this.tasks[i].percentDone == 1)
+                    finished.push(this.tasks[i]);
+                }
+                return finished;
+              },
 
-			/* !Event functions */
-			addListener	:	function(type, listener) {
-								if (typeof this._listeners[type] == "undefined") {
-									this._listeners[type] = [];
-								}
+      /* !Event functions */
+      addListener : function(type, listener) {
+                if (typeof this._listeners[type] == "undefined") {
+                  this._listeners[type] = [];
+                }
 
-								this._listeners[type].push(listener);
-							},
+                this._listeners[type].push(listener);
+              },
 
-			fire		:	function(event) {
-								if (typeof event == "string") {
-									event = { type: event };
-								}
-								if (!event.target) {
-									event.target = this;
-								}
+      fire    : function(event) {
+                if (typeof event == "string") {
+                  event = { type: event };
+                }
+                if (!event.target) {
+                  event.target = this;
+                }
 
-								if (!event.type) {
-									throw new Error("Event object missing 'type' property.");
-								}
+                if (!event.type) {
+                  throw new Error("Event object missing 'type' property.");
+                }
 
-								if (this._listeners[event.type] instanceof Array) {
-									var listeners = this._listeners[event.type];
-									for (var i=0, len=listeners.length; i < len; i++){
-										listeners[i].call(this, event);
-									}
-								}
-							},
+                if (this._listeners[event.type] instanceof Array) {
+                  var listeners = this._listeners[event.type];
+                  for (var i=0, len=listeners.length; i < len; i++){
+                    listeners[i].call(this, event);
+                  }
+                }
+              },
 
-			removeListener:	function(type, listener) {
-								if (this._listeners[type] instanceof Array) {
-									var listeners = this._listeners[type];
-									for (var i=0, len=listeners.length; i < len; i++) {
-										if (listeners[i] === listener){
-											listeners.splice(i, 1);
-											break;
-										}
-									}
-								}
-							},
+      removeListener: function(type, listener) {
+                if (this._listeners[type] instanceof Array) {
+                  var listeners = this._listeners[type];
+                  for (var i=0, len=listeners.length; i < len; i++) {
+                    if (listeners[i] === listener){
+                      listeners.splice(i, 1);
+                      break;
+                    }
+                  }
+                }
+              },
 
-			sendRequest : function(params, callback) {
-					var request = new XMLHttpRequest();
+      sendRequest : function(params, callback) {
+          var request = new XMLHttpRequest();
 
-					if (safari.extension.settings.getItem("username") != null) {
-						request.open("POST", safari.extension.settings.url, true, safari.extension.settings.username, safari.extension.settings.password);
-					} else {
-						request.open("POST", safari.extension.settings.url, true);
-					}
+          if (safari.extension.settings.getItem("username") != null) {
+            request.open("POST", safari.extension.settings.url, true, safari.extension.settings.username, safari.extension.settings.password);
+          } else {
+            request.open("POST", safari.extension.settings.url, true);
+          }
 
-					if (session_id) {
-						request.setRequestHeader("X-Transmission-Session-Id", session_id);
-					}
+          if (session_id) {
+            request.setRequestHeader("X-Transmission-Session-Id", session_id);
+          }
 
-					request.onreadystatechange = function() {
-						if (request.readyState == 4) {
-							var response = request.responseText;
-/* 							console.log(response); */
-							ds.tasks = [];
-							try {
-								if (response.length > 0) {
-									if (response.search(/invalid session-id/i) != -1) {
-										var matches = response.match(/<code>X-Transmission-Session-Id: (.*)<\/code>/);
-											session_id = matches[1];
-											ds.loadTasks(params);
-										} else if (response.search(/unauthorized/i) != -1) {
-													showText("Unauthorized Request", "");
-										} else {
-											if(callback) {
-												callback(response);
-											}
-										}
-									}
-								} catch (e) {
-											showText("Unknown error", "");
-								}
-							}
-					};
+          request.onreadystatechange = function() {
+            if (request.readyState == 4) {
+              var response = request.responseText;
+/*              console.log(response); */
+              ds.tasks = [];
+              try {
+                if (response.length > 0) {
+                  if (response.search(/invalid session-id/i) != -1) {
+                    var matches = response.match(/<code>X-Transmission-Session-Id: (.*)<\/code>/);
+                      session_id = matches[1];
+                      ds.loadTasks(params);
+                    } else if (response.search(/unauthorized/i) != -1) {
+                          showText("Unauthorized Request", "");
+                    } else {
+                      if(callback) {
+                        callback(response);
+                      }
+                    }
+                  }
+                } catch (e) {
+                      showText("Unknown error", "");
+                }
+              }
+          };
 
-					request.send(params);
+          request.send(params);
 
-			},
+      },
 
-			loadTasks	:	function() {
-					var thefields = ["id","name","eta","status","sizeWhenDone","percentDone","rateDownload","rateUpload","isFinished"];
-					var sdata = JSON.stringify({method:"torrent-get", arguments:{fields:thefields}});
-					this.sendRequest(sdata, function(response){
-						var compareItem = function(a, b) {
-							if (a.id > b.id)
-								return 1;
-							if (a.id < b.id)
-								return -1;
-							return 0;
-							}
-/* 										var response = response.substring(0, response.length-1); */
-							var sresponse = JSON.parse(response);
-/* 								console.log(data); */
-							// sort items
-							ds.tasks =  sresponse.arguments.torrents.sort(compareItem);
-/* 							setBadge(ds.tasks.length); */
-							ds.fire("taskListUpdated");
-					});
-			},
+      loadTasks : function() {
+          var thefields = ["id","name","eta","status","sizeWhenDone","percentDone","rateDownload","rateUpload","isFinished"];
+          var sdata = JSON.stringify({method:"torrent-get", arguments:{fields:thefields}});
+          this.sendRequest(sdata, function(response){
+            var compareItem = function(a, b) {
+              if (a.id > b.id)
+                return 1;
+              if (a.id < b.id)
+                return -1;
+              return 0;
+              }
+/*                    var response = response.substring(0, response.length-1); */
+              var sresponse = JSON.parse(response);
+/*                console.log(data); */
+              // sort items
+              ds.tasks =  sresponse.arguments.torrents.sort(compareItem);
+/*              setBadge(ds.tasks.length); */
+              ds.fire("taskListUpdated");
+          });
+      },
 
-			stopTask	:	function(taskId) {
-					var ds = this;
-					var sdata = JSON.stringify({method:"torrent-stop", arguments:{ids:taskId}});
-					this.sendRequest(sdata, function(response){
-						ds.loadTasks();
-					});
-			},
+      stopTask  : function(taskId) {
+          var ds = this;
+          var sdata = JSON.stringify({method:"torrent-stop", arguments:{ids:taskId}});
+          this.sendRequest(sdata, function(response){
+            ds.loadTasks();
+          });
+      },
 
-			startTask	:	function(taskId) {
-					var ds = this;
-					var sdata = JSON.stringify({method:"torrent-start", arguments:{ids:taskId}});
-					this.sendRequest(sdata, function(response){
-						ds.loadTasks();
-					});
-			},
+      startTask : function(taskId) {
+          var sdata = JSON.stringify({method:"torrent-start", arguments:{ids:taskId}});
+          this.sendRequest(sdata, function(response){
+            this.loadTasks();
+          });
+      },
 
-			removeTask	:	function(taskId) {
-					var ds = this;
-					var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskId}});
-					this.sendRequest(sdata, function(response){
-						ds.loadTasks();
-					});
-			},
+      removeTask  : function(taskId) {
+          var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskId}});
+          this.sendRequest(sdata, function(response){
+            this.loadTasks();
+          });
+      },
 
-			clearQueue	:	function(taskIds, callback) {
-/* 					console.log('ds.clearQueue called'); */
-/* 					console.log(taskIds); */
-					var ds = this;
-					var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskIds}});
-					this.sendRequest(sdata, function(response){
-					console.log(response);
-						var sresponse = JSON.parse(response);
-						if (sresponse.result == "success")
-							callback(true);
-						else
-							callback(false);
-						ds.loadTasks();
-					});
-			},
+      clearQueue  : function(taskIds, callback) {
+/*          console.log('ds.clearQueue called'); */
+/*          console.log(taskIds); */
+          var sdata = JSON.stringify({method:"torrent-remove", arguments:{ids:taskIds}});
+          this.sendRequest(sdata, function(response){
+          console.log(response);
+            var sresponse = JSON.parse(response);
+            if (sresponse.result == "success")
+              callback(true);
+            else
+              callback(false);
+            this.loadTasks();
+          });
+      },
 
-			addTaskURL	:	function(taskURL) {
-					var ds = this;
-					var sdata = JSON.stringify({method:"torrent-add", arguments:{filename:taskURL}});
-					this.sendRequest(sdata, function(response){
-						showText("Start Downloading", taskURL);
-						ds.loadTasks();
-					});
-			},
+      startBackgroundUpdate : function() {
 
-			addTorrentFile	: function(torrentFile) {
-					var ds = this;
-					showText("Downloading Torrent", torrentFile);
-					try {
-						var request = new XMLHttpRequest();
-						request.open("GET", that.info.href, true);
-						request.overrideMimeType('text/plain; charset=x-user-defined');
-						request.onreadystatechange = function() {
-							if (request.readyState == 4) {
-								// Base64 encode the metadata
-								var smetainfo = Base64.encodeBinary(request.responseText);
-								var sdata = JSON.stringify({method:"torrent-add", arguments:{metainfo:smetainfo}});
-								ds.sendRequest(sdata, function(response){
-									var sresponse = JSON.parse(response);
-									if (sresponse.result == "duplicate torrent")
-										showText("Torrent already exists", torrentFile);
-									else if (sresponse.result == "success")
-										showText("Start Downloading", torrentFile);
-									this.loadTasks();
-								});
-							}
-						}
-						request.send(null);
-					} catch (e) {
-						showText("Failed to fetch torrent", torrentFile);
-					}
-			},
+            if(this.timer) {
+              clearInterval(this.timer);
+            }
 
-			addTask	: function(info) {
-					var ds = this;
-					if (info.magnet) {
-						// Send the magnet link
-						ds.addTaskURL(info.href);
-					} else if(info.href) {
-						// Try to download the torrent file
-						ds.addTorrentFile(info.href);
-					}
-			},
+            this.loadTasks();
+            this.timer = setInterval(function(){this.loadTasks();}, 10000);
 
-					/* !Other functions */
-			startBackgroundUpdate : function() {
+      },
 
-						if(this.timer) {
-							clearInterval(this.timer);
-						}
+      startForegroundUpdate : function() {
+            if(this.timer) {
+              clearInterval(this.timer);
+            }
+            this.loadTasks();
+            this.timer = setInterval(function(){this.loadTasks();}, 1000);
+      }
 
-						this.loadTasks();
-						var ds = this;
-						this.timer = setInterval(function(){ds.loadTasks();}, 10000);
-
-			},
-
-			startForegroundUpdate : function() {
-						if(this.timer) {
-							clearInterval(this.timer);
-						}
-						this.loadTasks();
-						var ds = this;
-						this.timer = setInterval(function(){ds.loadTasks();}, 3000);
-			}
-
-		}
+    }
 
 
 
 function getTasks() {
-	return ds.tasks;
+  return ds.tasks;
 }
 
 function loadTasks() {
-	ds.loadTasks();
+  ds.loadTasks();
 }
 
 function stopTask(taskId) {
-	ds.stopTask(taskId);
+  ds.stopTask(taskId);
 }
 
 function startTask(taskId) {
-	ds.startTask(taskId);
+  ds.startTask(taskId);
 }
 
 function removeTask(taskId, callback) {
-	ds.removeTask(taskId, callback);
+  ds.removeTask(taskId, callback);
 }
 
 function clearQueue(taskIds, callback) {
-	ds.clearQueue(taskIds, callback);
+  ds.clearQueue(taskIds, callback);
 };
 
 function popupOpen() {
-	ds.startForegroundUpdate();
+  ds.startForegroundUpdate();
 }
 
 function popupClosed() {
-	ds.startBackgroundUpdate();
+  ds.startBackgroundUpdate();
 }
 
 ds.addListener("taskListUpdated", function() {
-			var views = getPopovers();
-			$.each(views, function(index, view) {
-				try {
-					view.updateTasks(ds.tasks);
-				} catch(e){
-					console.log(e);
-				}
-			});
-		});
+      var views = getPopovers();
+      $.each(views, function(index, view) {
+        try {
+          view.updateTasks(ds.tasks);
+        } catch(e){
+          console.log(e);
+        }
+      });
+    });
 
 ds.addListener("taskListUpdated", function(){
 
-		if(localStorage["notifiedTasks"] == undefined)
-			localStorage["notifiedTasks"] = JSON.stringify(new Array());
+    if(localStorage["notifiedTasks"] == undefined)
+      localStorage["notifiedTasks"] = JSON.stringify(new Array());
 
 
-		var finished = ds.getFinishedTasks();
-		var notified = JSON.parse(localStorage["notifiedTasks"]);
-		var toNotify = new Array();
+    var finished = ds.getFinishedTasks();
+    var notified = JSON.parse(localStorage["notifiedTasks"]);
+    var toNotify = new Array();
 
-		// Remove tasks from list for which a notification has been sent before
-		$.each(finished, function(index, task) {
-			if(notified.indexOf(parseInt(task.id)) == -1) {
-				toNotify.push(task);
-				notified.push(parseInt(task.id));
-			}
-		});
+    // Remove tasks from list for which a notification has been sent before
+    $.each(finished, function(index, task) {
+      if(notified.indexOf(parseInt(task.id)) == -1) {
+        toNotify.push(task);
+        notified.push(parseInt(task.id));
+      }
+    });
 
-		localStorage["notifiedTasks"] = JSON.stringify(notified);
+    localStorage["notifiedTasks"] = JSON.stringify(notified);
 
-		if(toNotify.length == 1) {
-			showText('Download Finished', toNotify[0].name);
-			setBadge(1);
-		}
+    if(toNotify.length == 1) {
+      showText('Download Finished', toNotify[0].name);
+      setBadge(1);
+    }
 
-		else if(toNotify.length > 1) {
-			showText('Downloads Finished', toNotify.length + "  Tasks Finished");
-			setBadge(toNotify.length);
-		} else {
-			setBadge(0);
-		}
+    else if(toNotify.length > 1) {
+      showText('Downloads Finished', toNotify.length + "  Tasks Finished");
+      setBadge(toNotify.length);
+    } else {
+      setBadge(0);
+    }
 
 });
 
 function showText(Title, description) {
 
-	// check for notification compatibility
-	if(!window.Notification) {
-	    // if browser version is unsupported, be silent
-	    safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("att-progress", {'info':this.info, 'message':text,'close':true});
-	}else{
-			// log current permission level
-	/* 				    console.log(Notification.permissionLevel()); */
-	    // if the user has not been asked to grant or deny notifications from this domain
+  // check for notification compatibility
+  if(!window.Notification) {
+      // if browser version is unsupported, be silent
+      safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("att-progress", {'info':this.info, 'message':text,'close':true});
+  }else{
+      // log current permission level
+  /*            console.log(Notification.permissionLevel()); */
+      // if the user has not been asked to grant or deny notifications from this domain
 
-	    if(Notification.permissionLevel() === 'default') {
-	        Notification.requestPermission(function() {
-	            // callback this function once a permission level has been set
-	            notify();
-	        });
-	    }
-	    // if the user has granted permission for this domain to send notifications
-	    else if(Notification.permissionLevel() === 'granted') {
-/* 	    		console.log(Title+" "+description); */
-	        var n = new Notification(
-	                    Title,
-	                    { body: description
-	                    }
-	                );
-	    }
-	    // if the user does not want notifications to come from this domain
-	    else if(Notification.permissionLevel() === 'denied') {
-	        // be silent
-	        return;
-	    }
-	}
+      if(Notification.permissionLevel() === 'default') {
+          Notification.requestPermission(function() {
+              // callback this function once a permission level has been set
+              notify();
+          });
+      }
+      // if the user has granted permission for this domain to send notifications
+      else if(Notification.permissionLevel() === 'granted') {
+/*          console.log(Title+" "+description); */
+          var n = new Notification(
+                      Title,
+                      { body: description
+                      }
+                  );
+      }
+      // if the user does not want notifications to come from this domain
+      else if(Notification.permissionLevel() === 'denied') {
+          // be silent
+          return;
+      }
+  }
 }
 
 
-		var userInfo = false;
-		function handleContextMenu(event) {
-			if (event.userInfo !== false) {
-				userInfo = event.userInfo;
+    var userInfo = false;
+    function handleContextMenu(event) {
+      if (event.userInfo !== false) {
+        userInfo = event.userInfo;
+        event.contextMenu.appendContextMenuItem("addtotransmission", "Add to Transmission");
+      }
+    }
 
-				event.contextMenu.appendContextMenuItem("addtotransmission", "Add to Transmission");
-			}
-		}
+    function performCommand(event) {
+      if (event.command === "addtotransmission") {
+        var newTorrent = new torrent(userInfo);
+        newTorrent.add();
+      }
+    }
 
-		function performCommand(event) {
-			if (event.command === "addtotransmission") {
-				var newTorrent = new torrent(userInfo);
-				newTorrent.add();
-				ds.addTask(userInfo)
-			}
-		}
+    function getMessage(event) {
+      if (event.name === "getSettings") {
+          event.target.page.dispatchMessage("setSettings", {
+              allLinks: safari.extension.settings.getItem("alllinks"),
+              placement: safari.extension.settings.getItem("placement")
+          });
+        }
+    }
 
-		function getMessage(event) {
-			if (event.name === "getSettings") {
-		    	event.target.page.dispatchMessage("setSettings", {
-		          allLinks: safari.extension.settings.getItem("alllinks"),
-		          placement: safari.extension.settings.getItem("placement")
-		      });
-		    }
-		}
+    safari.application.addEventListener("message", getMessage, false);
+    safari.application.addEventListener("command", performCommand, false);
+    safari.application.addEventListener("contextmenu", handleContextMenu, false);
 
-		safari.application.addEventListener("message", getMessage, false);
-		safari.application.addEventListener("command", performCommand, false);
-		safari.application.addEventListener("contextmenu", handleContextMenu, false);
-
-		document.addEventListener('DOMContentLoaded',function() {
-			ds.startBackgroundUpdate();
-		});
+    document.addEventListener('DOMContentLoaded',function() {
+      ds.startBackgroundUpdate();
+    });
 
     </script>
   </head>
