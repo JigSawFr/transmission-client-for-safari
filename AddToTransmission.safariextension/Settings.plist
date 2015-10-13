@@ -48,11 +48,11 @@
 	</dict>
 	<dict>
 		<key>DefaultValue</key>
-		<true/>
+		<false>
 		<key>Key</key>
 		<string>addpaused</string>
 		<key>Title</key>
-		<string>Add paused?</string>
+		<string>Add Torrents paused</string>
 		<key>Type</key>
 		<string>CheckBox</string>
 	</dict>
@@ -72,7 +72,7 @@
 		<key>Key</key>
 		<string>placement</string>
 		<key>Title</key>
-		<string>Tooltip placement</string>
+		<string>Tooltip Placement</string>
 		<key>Titles</key>
 		<array>
 			<string>Top</string>

@@ -7,15 +7,15 @@
 	<key>Builder Version</key>
 	<string>11601.2.7.2</string>
 	<key>CFBundleDisplayName</key>
-	<string>Transmission Client for Safari</string>
+	<string>Transmission Client</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.xiaolife.safari.att</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.6</string>
+	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>7</string>
+	<string>1</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -43,15 +43,15 @@
 				<key>Identifier</key>
 				<string>safariTRToolbarButton</string>
 				<key>Image</key>
-				<string>toolbar.png</string>
+				<string>toolbar-icon.png</string>
 				<key>Label</key>
-				<string>Transmission Remote</string>
+				<string>Transmission</string>
 				<key>Palette Label</key>
-				<string>Safari Transmission Remote</string>
+				<string>Transmission Client</string>
 				<key>Popover</key>
 				<string>statusPopover</string>
 				<key>Tool Tip</key>
-				<string>View download task status in Transmission</string>
+				<string>View Transmission Download List</string>
 			</dict>
 		</array>
 	</dict>
@@ -71,7 +71,9 @@
 		</array>
 	</dict>
 	<key>Description</key>
-	<string>Add torrents and magnet links to Transmission, and manage them, via Safari.</string>
+	<string>Add torrents and magnet links to Transmission, and manage them.</string>
+	<key>DeveloperIdentifier</key>
+	<string>0000000000</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
