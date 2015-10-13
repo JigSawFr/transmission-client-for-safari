@@ -1,0 +1,5 @@
+[diff]
+    tool = ignorewhitespace
+
+[difftool "ignorewhitespace"]
+    cmd = "git diff -w"
