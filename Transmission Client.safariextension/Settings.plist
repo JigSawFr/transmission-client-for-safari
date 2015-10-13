@@ -48,7 +48,7 @@
 	</dict>
 	<dict>
 		<key>DefaultValue</key>
-		<false>
+		<false/>
 		<key>Key</key>
 		<string>addpaused</string>
 		<key>Title</key>
